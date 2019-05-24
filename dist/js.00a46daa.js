@@ -117,79 +117,117 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"../../user/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"js/index.js":[function(require,module,exports) {
+'use strict';
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
+var todoApp = function () {
+  var todoBody = document.querySelector('.todo__body');
+  var headerInput = document.querySelector('.todo__header-input');
+  var todoList = [];
+
+  function renderMain(settings) {
+    var buffer = document.createDocumentFragment();
+    var todoMain = document.createElement('section');
+    var todoFooter = document.createElement('footer');
+    todoMain.classList.add('todo__main');
+    todoMain.innerHTML = "<ul class=\"todo__list\">\n            <li class=\"todo__item\" data-id = \"".concat(settings.id, "\">\n                <label class=\"todo__item-label\">\n                    <input type=\"checkbox\" class=\"todo__item-check\">\n                    <span class=\"todo__checkbox\"></span>\n                </label>\n                <div class=\"todo__item-space\">\n                    <p class=\"todo__item-text\">").concat(settings.value, "</p>\n                    <button class=\"todo__item-del\"></button>\n                </div>\n            </li>\n        </ul>");
+    buffer.appendChild(todoMain);
+    todoFooter.classList.add('todo__footer');
+    todoFooter.innerHTML = "<span class=\"todo__count\">\n            <span class=\"todo__amount\">0</span>\n            <span class=\"todo__count-items\"></span>\n            <span class=\"todo__count-left\">left</span>\n        </span>\n        <ul class=\"todo__filters\">\n            <li class=\"todo__filter\">\n                <span class=\"todo__filter-text todo__filter-text_active\">All</span>\n            </li>\n            <li class=\"todo__filter\">\n                <span class=\"todo__filter-text\">Active</span>\n            </li>\n            <li class=\"todo__filter\">\n                <span class=\"todo__filter-text\">Completed</span>\n            </li>\n        </ul>\n        <button class=\"todo__footer-btn\">Clear completed</button>";
+    buffer.appendChild(todoFooter);
+    todoBody.appendChild(buffer);
   }
 
-  return bundleURL;
-}
-
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
-
-    if (matches) {
-      return getBaseURL(matches[0]);
-    }
+  function renderTodoItem(settings) {
+    var listOfItems = document.querySelector('.todo__list');
+    var todoItem = document.createElement('li');
+    todoItem.classList.add('todo__item');
+    todoItem.setAttribute('data-id', settings.id);
+    todoItem.innerHTML = "<label class=\"todo__item-label\">\n                    <input type=\"checkbox\" class=\"todo__item-check\">\n                    <span class=\"todo__checkbox\"></span>\n                </label>\n                <div class=\"todo__item-space\">\n                    <p class=\"todo__item-text\">".concat(settings.value, "</p>\n                    <button class=\"todo__item-del\"></button>\n                </div>");
+    listOfItems.appendChild(todoItem);
   }
 
-  return '/';
-}
-
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)\/[^/]+$/, '$1') + '/';
-}
-
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"../../user/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
-
-function updateLink(link) {
-  var newLink = link.cloneNode();
-
-  newLink.onload = function () {
-    link.remove();
-  };
-
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-
-var cssTimeout = null;
-
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
+  function idGenerator() {
+    return '_' + Math.random().toString(36).substr(2, 9);
   }
 
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
+  function headerInputHandler(e) {
+    var headerInputWrap = document.querySelector('.todo__header-input-wrap');
+    var footer = document.querySelector('.todo__footer');
+    var todoItemSettings = {};
 
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
+    if (e.keyCode === 13 && this.value.trim() !== '') {
+      if (footer) {
+        todoItemSettings.id = idGenerator();
+        todoItemSettings.value = this.value;
+        todoItemSettings.isDone = false;
+        renderTodoItem(todoItemSettings);
+        this.value = '';
+      } else {
+        todoItemSettings.id = idGenerator();
+        todoItemSettings.value = this.value;
+        todoItemSettings.isDone = false;
+        renderMain(todoItemSettings);
+        headerInputWrap.classList.add('todo__header-input-wrap_active');
+        this.value = '';
       }
+
+      todoList.push(todoItemSettings);
+      updateAmount();
     }
+  }
 
-    cssTimeout = null;
-  }, 50);
-}
+  function updateAmount() {
+    var todoAmount = document.querySelector('.todo__amount');
+    var todoAmountWord = document.querySelector('.todo__count-items');
+    var amountArray = todoList.filter(function (item) {
+      return item.isDone === false;
+    });
+    todoAmount.textContent = amountArray.length;
+    todoAmountWord.textContent = amountArray.length === 1 ? 'item' : 'items';
+  }
 
-module.exports = reloadCSS;
-},{"./bundle-url":"../../user/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"styles/style.scss":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
+  function todoItemHandler(e) {
+    //checkbox eventListener
+    if (e.target.classList.contains('todo__item-check')) {
+      var itemText = e.target.parentNode.nextElementSibling.firstElementChild;
+      var listItem = e.target.parentNode.parentNode;
+      itemText.classList.toggle('todo__item-text_done');
+      todoList.forEach(function (item) {
+        if (listItem.dataset.id === item.id) {
+          item.isDone = !item.isDone;
+        }
+      });
+      updateAmount();
+    } //delete item eventListener
 
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"_css_loader":"../../user/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/css-loader.js"}],"../../user/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+
+    if (e.target.classList.contains('todo__item-del')) {
+      var listOfItems = document.querySelector('.todo__list');
+      var currentItem = e.target.parentNode.parentNode;
+      listOfItems.removeChild(currentItem);
+      todoList.forEach(function (item) {
+        if (currentItem.dataset.id === item.id) {
+          todoList.splice(todoList.indexOf(item), 1);
+        }
+      });
+      updateAmount();
+      console.log(todoList);
+    }
+  }
+
+  return {
+    todoBody: todoBody,
+    headerInput: headerInput,
+    renderMain: renderMain,
+    headerInputHandler: headerInputHandler,
+    todoItemHandler: todoItemHandler
+  };
+}();
+
+todoApp.headerInput.addEventListener('keydown', todoApp.headerInputHandler);
+todoApp.todoBody.addEventListener('click', todoApp.todoItemHandler);
+},{}],"../../user/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -392,5 +430,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../../user/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/style.ff1c4cab.js.map
+},{}]},{},["../../user/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","js/index.js"], null)
+//# sourceMappingURL=/js.00a46daa.js.map
