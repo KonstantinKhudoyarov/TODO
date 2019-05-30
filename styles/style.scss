@@ -243,36 +243,40 @@
      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
  }
 
+ .todo__header-arrow {
+     position: absolute;
+     top: 33%;
+     left: 10px;
+     display: flex;
+     justify-content: center;
+     width: 24px;
+     font-size: 22px;
+     color: $main-color;
+     opacity: 0;
+     pointer-events: none;
+     transform: rotate(90deg);
+     cursor: pointer;
+     -webkit-touch-callout: none;
+     -webkit-user-select: none;
+     -khtml-user-select: none;
+     -moz-user-select: none;
+     -ms-user-select: none;
+     user-select: none;
+ }
+
  .todo__header-input-wrap {
      position: relative;
-
-     &::before {
-         content: '❯';
-         position: absolute;
-         top: 33%;
-         left: 10px;
-         display: flex;
-         justify-content: center;
-         width: 24px;
-         font-size: 22px;
-         color: $main-color;
-         opacity: 0;
-         transform: rotate(90deg);
-         cursor: pointer;
-     }
  }
 
- .todo__header-input-wrap_active {
 
-     &::before {
-         opacity: .2;
-     }
+
+ .todo__header-arrow_active {
+     opacity: .2;
+     pointer-events: all;
  }
 
- .todo__header-input-wrap_clear {
-     &::before {
-         opacity: .8;
-     }
+ .todo__header-arrow_done {
+     opacity: .8;
  }
 
  .todo__title {
@@ -325,6 +329,30 @@
      }
  }
 
+ .todo__item_done {
+
+     .todo__item-text {
+         color: rgba($main-color, .6);
+         text-decoration: line-through;
+     }
+ }
+
+ .todo__item_editing {
+
+     .todo__item-label {
+         visibility: hidden;
+     }
+
+     .todo__item-space {
+         display: none;
+     }
+
+     .todo__item-edit {
+         display: block;
+         padding: 16px 10px;
+     }
+ }
+
  .todo__item-check {
      @include visually-hidden();
 
@@ -348,17 +376,12 @@
  }
 
  .todo__item-text {
-     padding: 20px 0 20px 15px;
+     padding: 16px 0 16px 15px;
      font-size: 24px;
 
      @include resolution(530) {
          font-size: 20px;
      }
- }
-
- .todo__item-text_done {
-     color: rgba($main-color, .6);
-     text-decoration: line-through;
  }
 
  .todo__item-del {
@@ -390,6 +413,15 @@
      &::after {
          transform: rotate(-45deg);
      }
+ }
+
+ .todo__item-edit {
+     display: none;
+     width: 100%;
+     font-size: 24px;
+     box-shadow: inset 0 0 3px 0 $main-color;
+     border: none;
+     outline: none;
  }
 
  .todo__footer {
@@ -437,7 +469,7 @@
      display: block;
      padding: 2px 6px;
      border: 1px solid transparent;
-     border-radius: 5px;
+     border-radius: 3px;
      cursor: pointer;
 
      &:hover {
@@ -454,6 +486,7 @@
  }
 
  .todo__footer-btn {
+     visibility: hidden;
      color: rgba($main-color, .8);
      background: transparent;
      border: none;
@@ -463,4 +496,8 @@
      &:hover {
          text-decoration: underline;
      }
+ }
+
+ .todo__footer-btn_active {
+     visibility: visible;
  }
